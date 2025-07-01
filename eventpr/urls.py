@@ -19,11 +19,13 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 
+# eventpr/urls.py
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('products.urls')),
-    path('customer/',include('customers.urls')),
-    path('orders/',include('orders.urls'))
-
+    path('', include('products.urls')),  # ✅ This MUST be included
+    path('customer/', include('customers.urls')),  # if you're using it
+    path('orders/', include('orders.urls')),        # if you're using it
 ]
+
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
