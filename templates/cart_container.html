@@ -1,0 +1,299 @@
+{% load static %}
+{% load cart_tags %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+    }
+
+    .cart-container {
+        max-width: 1200px;
+        margin: 50px auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        padding: 0 20px;
+        align-items: start;
+    }
+
+    .cart-items {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .cart-items h2 {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+        color: #04060a;
+        ;
+    }
+
+    .cart-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border-bottom: 1px solid #eee;
+        padding: 20px 0;
+    }
+
+    .cart-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-info h5 {
+        margin: 0 0 5px;
+        font-weight: 600;
+        color: #f80f07;
+    }
+
+    .item-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: black;
+    }
+
+    .item-qty {
+        text-align: center;
+    }
+
+    .item-qty input {
+        width: 50px;
+        padding: 5px;
+        text-align: center;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    .item-remove {
+        color: #dc3545;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-align: center;
+        margin-top: 8px;
+        text-decoration: none;
+    }
+
+    .summary {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        color: #1D3557;
+    }
+
+    .summary h3 {
+        font-size: 1.6rem;
+        margin-bottom: 25px;
+        color: #1D3557;
+    }
+
+    .summary .totals {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 1rem;
+    }
+
+    .summary .total-bold {
+        font-weight: 600;
+    }
+
+    .btn-confirm {
+        width: 100%;
+        padding: 12px;
+        background: #22577A;
+        border: none;
+        color: white;
+        font-size: 1rem;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-confirm:hover {
+        background: #1D3557;
+    }
+
+    @media screen and (max-width: 768px) {
+        .cart-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .address-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        margin-bottom: 25px;
+    }
+
+    .address-form input {
+        padding: 10px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: white;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .address-form input:focus {
+        border-color: #22577A;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(34, 87, 122, 0.1);
+    }
+
+    .promo-section {
+        margin-bottom: 25px;
+        background: #edf6f9;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px dashed #94a3b8;
+        display: flex;
+        gap: 10px;
+    }
+
+    .promo-section input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .promo-section button {
+        padding: 10px 16px;
+        background: linear-gradient(to right, #06b6d4, #3b82f6);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .promo-section button:hover {
+        background: linear-gradient(to right, #0284c7, #2563eb);
+    }
+
+    .confirmed-address {
+        background: #ecfdf5;
+        border: 1px solid #34d399;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #065f46;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="cart-container">
+    <!-- Cart Items -->
+    <div class="cart-items">
+        <h2>Your Cart</h2>
+        {% if cart.added_items.all %}
+        {% for cart_item in cart.added_items.all %}
+        <div class="cart-item">
+            <img src="{{ cart_item.product.image.url }}" alt="{{ cart_item.product.title }}">
+            <div class="item-info">
+                <h5>{{ cart_item.product.title }}</h5>
+                <p>Size: {{ cart_item.size }}</p>
+                <p>Price: $ {% multiply cart_item.product.price cart_item.quantity %}</p>
+            </div>
+            <div class="item-qty">
+                <input type="number" value="{{ cart_item.quantity }}" disabled>
+                <div class="item-remove">
+                    <a class="item-remove" href="{% url 'remove_item' cart_item.id %}">Remove</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>Your cart is empty.</p>
+        {% endif %}
+    </div>
+
+    <!-- Order Summary + Address Form -->
+    {% if cart.added_items.all %}
+    <div class="summary">
+        <!-- Address Section -->
+        {% if not address_exists %}
+
+
+        <!-- Show Address Form -->
+        <div class="address-form">
+            <div class="address-section-title">Add Shipping Address</div>
+            <form method="POST" action="{% url 'save_address' %}">
+                {% csrf_token %}
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="text" name="phone" placeholder="Phone Number" required>
+                <input type="text" name="address_line" placeholder="Address Line" required>
+                <input type="text" name="city" placeholder="City" required>
+                <input type="text" name="state" placeholder="State" required>
+                <input type="text" name="postal_code" placeholder="Postal Code" required>
+                <input type="text" name="country" placeholder="Country" required>
+                <button type="submit" class="btn-confirm">Save Address</button>
+            </form>
+        </div>
+        {% else %}
+        <!-- Show Saved Address -->
+        <div class="confirmed-address">
+            <strong>Shipping Address:</strong><br>
+            {{ saved_address.full_name }}<br>
+            {{ saved_address.phone }}<br>
+            {{ saved_address.address_line }}, {{ saved_address.city }}<br>
+            {{ saved_address.state }} - {{ saved_address.postal_code }}<br>
+            {{ saved_address.country }}
+            <br><br>
+            <form method="get" action="?edit_address=1">
+                <button type="submit" class="btn-confirm" style="margin-top: 10px; background: #06b6d4;">
+                    ✏️ Edit Address
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Order Summary -->
+        {% if address_exists %}
+        <h3>Order Summary</h3>
+        <div class="totals">
+            <span>Subtotal</span>
+            <span>$ {% subtotal cart %}</span>
+        </div>
+        <div class="totals">
+            <span>Tax</span>
+            <span>$35</span>
+        </div>
+        <div class="totals total-bold">
+            <span>Total</span>
+            <span>$ {% total cart %}</span>
+        </div>
+
+        <!-- Confirm Button -->
+
+        <form method="get" action="{% url 'start_payment' %}">
+            <button class="btn-confirm" type="submit">PLACE ORDER</button>
+        </form>
+        {% endif %}
+
+    </div>
+    {% endif %}
+
+
+</div>

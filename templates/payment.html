@@ -1,0 +1,177 @@
+{% load static %}
+{% load cart_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>FootArena | Secure Payment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #22577A, #1D3557);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .payment-card {
+            background: #fff;
+            color: #333;
+            padding: 40px 30px;
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .payment-card h2 {
+            color: #22577A;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .payment-card p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .payment-amount {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #1D3557;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        #rzp-button {
+            background: linear-gradient(135deg, #22577A, #1D3557);
+            color: #fff;
+        }
+
+        #rzp-button:hover {
+            background: linear-gradient(135deg, #1D3557, #22577A);
+            transform: scale(1.02);
+        }
+
+        .cod-btn {
+            width: 100%;
+            padding: 12px 0;
+            background: #ffffff;
+            color: #22577A;
+            font-weight: 600;
+            font-size: 1rem;
+            border: 2px solid #22577A;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .cod-btn:hover {
+            background: #22577A;
+            color: #fff;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(34, 87, 122, 0.3);
+        }
+
+
+        @media (max-width: 500px) {
+            .payment-card {
+                padding: 30px 20px;
+            }
+
+            .payment-card h2 {
+                font-size: 1.6rem;
+            }
+
+            .payment-amount {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="payment-card">
+        <h2>Confirm Payment</h2>
+        <p>Thank you for shopping with <strong>FootArena</strong>!</p>
+        <div class="payment-amount">Total: ₹ {% total cart %}</div>
+
+        <!-- Razorpay Button -->
+        <button class="btn" id="rzp-button">Pay with Razorpay</button>
+
+        <!-- Cash on Delivery Form -->
+        <form method="post" action="{% url 'checkout' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="total" value="{% total cart %}"/>
+            <button class="btn cod-btn" type="submit">Cash on Delivery</button>
+        </form>
+    </div>
+
+    <script>
+        var options = {
+            "key": "{{ razorpay_key_id }}",
+            "amount": "{{ payment.amount }}",
+            "currency": "INR",
+            "name": "FootArena",
+            "description": "Checkout Payment",
+            "order_id": "{{ payment.id }}",
+            "handler": function (response) {
+                alert("Payment successful! Razorpay Payment ID: " + response.razorpay_payment_id);
+                window.location.href = "/orders/success/";
+            },
+            "theme": {
+                "color": "#22577A"
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+        document.getElementById('rzp-button').onclick = function (e) {
+            rzp1.open();
+            e.preventDefault();
+        }
+    </script>
+
+</body>
+
+</html>
